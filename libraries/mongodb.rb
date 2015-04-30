@@ -39,7 +39,7 @@ class Chef::ResourceDefinitionList::MongoDB
     begin
       connection = nil
       rescue_connection_failure do
-        connection = Mongo::Connection.new('localhost', node['mongodb']['config']['port'], :op_timeout => 5, :slave_ok => true)
+        connection = Mongo::Client.new([ "localhost:#{node['mongodb']['config']['port']}" ], :op_timeout => 5, :slave_ok => true)
         connection.database_names # check connection
       end
     rescue => e
@@ -102,7 +102,7 @@ class Chef::ResourceDefinitionList::MongoDB
     elsif result.fetch('errmsg', nil) =~ /(\S+) is already initiated/ || (result.fetch('errmsg', nil) == 'already initialized')
       server, port = Regexp.last_match.nil? || Regexp.last_match.length < 2 ? ['localhost', node['mongodb']['config']['port']] : Regexp.last_match[1].split(':')
       begin
-        connection = Mongo::Connection.new(server, port, :op_timeout => 5, :slave_ok => true)
+        connection = Mongo::Client.new([ "#{server}:#{port}" ], :op_timeout => 5, :slave_ok => true)
       rescue
         abort("Could not connect to database: '#{server}:#{port}'")
       end
@@ -142,9 +142,9 @@ class Chef::ResourceDefinitionList::MongoDB
         result = nil
         begin
           result = admin.command(cmd, :check_response => false)
-        rescue Mongo::ConnectionFailure
+        rescue Mongo::Error::OperationFailure
           # reconfiguring destroys existing connections, reconnect
-          connection = Mongo::Connection.new('localhost', node['mongodb']['config']['port'], :op_timeout => 5, :slave_ok => true)
+          connection = Mongo::Client.new([ "localhost:#{node['mongodb']['config']['port']}" ], :op_timeout => 5, :slave_ok => true)
           config = connection['local']['system']['replset'].find_one('_id' => name)
           # Validate configuration change
           if config['members'] == rs_members
@@ -187,9 +187,9 @@ class Chef::ResourceDefinitionList::MongoDB
         result = nil
         begin
           result = admin.command(cmd, :check_response => false)
-        rescue Mongo::ConnectionFailure
+        rescue Mongo::Error::OperationFailure
           # reconfiguring destroys existing connections, reconnect
-          connection = Mongo::Connection.new('localhost', node['mongodb']['config']['port'], :op_timeout => 5, :slave_ok => true)
+          connection = Mongo::Client.new([ "localhost:#{node['mongodb']['config']['port']}" ], :op_timeout => 5, :slave_ok => true)
           config = connection['local']['system']['replset'].find_one('_id' => name)
           # Validate configuration change
           if config['members'] == rs_members
@@ -237,7 +237,7 @@ class Chef::ResourceDefinitionList::MongoDB
     Chef::Log.info(shard_members.inspect)
 
     begin
-      connection = Mongo::Connection.new('localhost', node['mongodb']['config']['port'], :op_timeout => 5)
+      connection = Mongo::Client.new([ "localhost:#{node['mongodb']['config']['port']}" ], :op_timeout => 5)
     rescue => e
       Chef::Log.warn("Could not connect to database: 'localhost:#{node['mongodb']['config']['port']}', reason #{e}")
       return
@@ -268,7 +268,7 @@ class Chef::ResourceDefinitionList::MongoDB
     require 'mongo'
 
     begin
-      connection = Mongo::Connection.new('localhost', node['mongodb']['config']['port'], :op_timeout => 5)
+      connection = Mongo::Client.new([ "localhost:#{node['mongodb']['config']['port']}" ], :op_timeout => 5)
     rescue => e
       Chef::Log.warn("Could not connect to database: 'localhost:#{node['mongodb']['config']['port']}', reason #{e}")
       return
@@ -330,7 +330,7 @@ class Chef::ResourceDefinitionList::MongoDB
     retries = 0
     begin
       yield
-    rescue Mongo::ConnectionFailure => ex
+    rescue Mongo::Error::OperationFailure => ex
       retries += 1
       raise ex if retries > max_retries
       sleep(0.5)
