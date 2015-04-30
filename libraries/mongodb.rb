@@ -47,8 +47,9 @@ class Chef::ResourceDefinitionList::MongoDB
       return
     end
 
-    # Want the node originating the connection to be included in the replicaset
-    members << node unless members.any? { |m| m.name == node.name }
+    # Want the node originating the connection to be included in the replicaset - not needed if on OpsWorks
+    members << node unless Chef::ResourceDefinitionList::OpsWorksHelper.opsworks?(node) || members.any? {|m| m.name == node.name }
+
     members.sort! { |x, y| x.name <=> y.name }
     rs_members = []
     rs_options = {}
