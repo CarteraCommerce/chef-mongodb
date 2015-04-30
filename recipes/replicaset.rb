@@ -23,7 +23,7 @@ node.set['mongodb']['cluster_name'] = node['mongodb']['cluster_name']
 include_recipe 'mongodb::install'
 include_recipe 'mongodb::mongo_gem'
 
-::Chef::Recipe.send(:include, MongoDB::OpsWorksHelper)
+#::Chef::Recipe.send(:include, MongoDB::OpsWorksHelper)
 #Chef::Log.info "Configuring replicaset with OPSWORKS REPLICASET"
 
 unless node['mongodb']['is_shard']
