@@ -2,7 +2,7 @@
 require 'chef/node'
 
 class Chef::ResourceDefinitionList::OpsWorksHelper
-
+  Chef::Log.info('##### Now in OpsWorksHelper')
   # true if we're on opsworks, false otherwise
   def self.opsworks?(node)
     node['opsworks'] != nil
