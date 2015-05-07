@@ -32,7 +32,7 @@ class Chef::ResourceDefinitionList::OpsWorksHelper
           'replica_tags' => {}, # to_hash is called on this
           'replica_votes' => 1
         }
-        member.default['mongodb'] = mongodb_attributes
+        member.default['mongodb']['config'] = mongodb_attributes
         members << member
       end
     end
