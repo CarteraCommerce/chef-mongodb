@@ -2,7 +2,7 @@
 require 'chef/node'
 
 class Chef::ResourceDefinitionList::OpsWorksHelper
-  Chef::Log.info('##### Now in OpsWorksHelper')
+
   # true if we're on opsworks, false otherwise
   def self.opsworks?(node)
     node['opsworks'] != nil
@@ -23,7 +23,7 @@ class Chef::ResourceDefinitionList::OpsWorksHelper
         member.default['hostname'] = name
         mongodb_attributes = {
           # here we could support a map of instances to custom replicaset options in the custom json
-          'port' => node['mongodb']['port'],
+          'port' => node['mongodb']['config']['port'],
           'replica_arbiter_only' => false,
           'replica_build_indexes' => true,
           'replica_hidden' => false,
@@ -32,6 +32,8 @@ class Chef::ResourceDefinitionList::OpsWorksHelper
           'replica_tags' => {}, # to_hash is called on this
           'replica_votes' => 1
         }
+        # cram this into both keys to keep everyone happy
+        member.default['mongodb'] = mongodb_attributes
         member.default['mongodb']['config'] = mongodb_attributes
         members << member
       end

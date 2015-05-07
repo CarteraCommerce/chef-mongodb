@@ -55,14 +55,11 @@ class Chef::ResourceDefinitionList::MongoDB
     rs_options = {}
     members.each_index do |n|
       host = "#{members[n]['fqdn']}:#{members[n]['mongodb']['config']['port']}"
-  Chef::Log.info(" ##### libraries/MongoDB - line 58 - host == #{host}")
       rs_options[host] = {}
       rs_options[host]['arbiterOnly'] = true if members[n]['mongodb']['replica_arbiter_only']
       rs_options[host]['buildIndexes'] = false unless members[n]['mongodb']['replica_build_indexes']
       rs_options[host]['hidden'] = true if members[n]['mongodb']['replica_hidden']
       slave_delay = members[n]['mongodb']['replica_slave_delay']
-  Chef::Log.info(" ##### libraries/MongoDB - line 63")
-  Chef::Log.info(" ##### libraries/MongoDB - line 64 - slave_delay == #{slave_delay}")
       rs_options[host]['slaveDelay'] = slave_delay if slave_delay > 0
       if rs_options[host]['buildIndexes'] == false || rs_options[host]['hidden'] || rs_options[host]['slaveDelay']
         priority = 0
