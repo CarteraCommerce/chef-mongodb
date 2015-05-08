@@ -18,7 +18,7 @@ class Chef::ResourceDefinitionList::OpsWorksHelper
       if instance['status'] == 'online'
         member = Chef::Node.new
         member.name(name)
-        member.default['fqdn'] = instance['private_dns_name']
+        member.default['fqdn'] = name
         member.default['ipaddress'] = instance['private_ip']
         member.default['hostname'] = name
         mongodb_attributes = {
